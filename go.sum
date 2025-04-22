@@ -1,5 +1,5 @@
-github.com/anfilat/xlsx-sax v0.0.0-20250421125212-ab47477e8407 h1:/LVZEO6PpCYH5R3Q0FzEPD00n6HPI6D8YNRi5/kGKeI=
-github.com/anfilat/xlsx-sax v0.0.0-20250421125212-ab47477e8407/go.mod h1:FsorwNPSuCRMlAQN17XidsWSyb4xCpYXiD3O5SuWv9Y=
+github.com/anfilat/xlsx-sax v0.0.0-20250422063827-e47f129e1f33 h1:eSW1DDZhbmsZp6Fq4ysEhn0Nuec9bI6QycMR+WKp5yo=
+github.com/anfilat/xlsx-sax v0.0.0-20250422063827-e47f129e1f33/go.mod h1:FsorwNPSuCRMlAQN17XidsWSyb4xCpYXiD3O5SuWv9Y=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
