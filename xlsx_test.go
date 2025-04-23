@@ -3,26 +3,37 @@ package xlsx_bench
 import (
 	"bytes"
 	"os"
+	"strconv"
 	"testing"
 	"time"
 
-	"github.com/anfilat/xlsx-sax"
+	sax "github.com/anfilat/xlsx-sax"
+	tealeg "github.com/tealeg/xlsx/v3"
+	"github.com/xuri/excelize/v2"
 )
 
-func BenchmarkXlsx(b *testing.B) {
+type xlsxItem struct {
+	Name  string
+	Offer string
+	Name2 string
+	Count int
+	Date  time.Time
+}
+
+func BenchmarkXlsxSAX(b *testing.B) {
 	data, _ := os.ReadFile("testdata/bench.xlsx")
-	br := bytes.NewReader(data)
 
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		xlsx, _ := xlsx.New(br, br.Size())
+		br := bytes.NewReader(data)
+		xlsx, _ := sax.New(br, br.Size())
 		sheet, _ := xlsx.OpenSheetByOrder(0)
 
 		_ = sheet.SkipRow()
 
 		for sheet.NextRow() {
-			item := xlsx1Item{}
+			item := xlsxItem{}
 			for sheet.NextCell() {
 				if sheet.Col == 0 {
 					item.Name, _ = sheet.CellValue()
@@ -42,10 +53,68 @@ func BenchmarkXlsx(b *testing.B) {
 	}
 }
 
-type xlsx1Item struct {
-	Name  string
-	Offer string
-	Name2 string
-	Count int
-	Date  time.Time
+func BenchmarkTealegXlsx(b *testing.B) {
+	data, _ := os.ReadFile("testdata/bench.xlsx")
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		br := bytes.NewReader(data)
+		xlsx, _ := tealeg.OpenReaderAt(br, br.Size())
+		sheet := xlsx.Sheets[0]
+
+		_ = sheet.ForEachRow(func(r *tealeg.Row) error {
+			if r.GetCoordinate() == 0 {
+				return nil
+			}
+
+			item := xlsxItem{}
+			return r.ForEachCell(func(c *tealeg.Cell) error {
+				col, _ := c.GetCoordinates()
+				if col == 0 {
+					item.Name = c.Value
+				} else if col == 1 {
+					item.Offer, _ = c.FormattedValue()
+				} else if col == 2 {
+					item.Name2 = c.Value
+				} else if col == 3 {
+					item.Count, _ = c.Int()
+				} else if col == 4 {
+					item.Date, _ = c.GetTime(false)
+				}
+				return nil
+			})
+		})
+	}
+}
+
+func BenchmarkExcelize(b *testing.B) {
+	data, _ := os.ReadFile("testdata/bench.xlsx")
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		br := bytes.NewReader(data)
+		xlsx, _ := excelize.OpenReader(br)
+		rows, _ := xlsx.GetRows("b")
+
+		for _, row := range rows[1:] {
+			item := xlsxItem{}
+			for col, colCell := range row {
+				if col == 0 {
+					item.Name = colCell
+				} else if col == 1 {
+					item.Offer = colCell
+				} else if col == 2 {
+					item.Name2 = colCell
+				} else if col == 3 {
+					item.Count, _ = strconv.Atoi(colCell)
+				} else if col == 4 {
+					item.Date, _ = time.Parse(time.DateTime, colCell)
+				}
+			}
+		}
+
+		_ = xlsx.Close()
+	}
 }
